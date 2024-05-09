@@ -1,0 +1,19 @@
+ public List<User> getFollowers(User user) {
+        List<User> followers = followingRepository.findFollowersByUser(user);
+        return followers;
+    }
+
+    public List<User> getFollowing(User user) {
+        List<User> following = followingRepository.findUsersByFollower(user);
+        return following;
+    }
+
+    public long getFollowersCount(User user) {
+        long followersCount = followingRepository.countFollowersByUser(user);
+        return followersCount;
+    }
+
+    public long getFollowingCount(User user) {
+        long followingCount = followingRepository.countUsersByFollower(user);
+        return followingCount;
+    }
