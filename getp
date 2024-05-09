@@ -1,0 +1,12 @@
+public List<HomePost> getPosts(User user, User viewingUser) {
+        List<Post> posts = postRepository.findByUserOrderByCreatedAtDesc(user);
+        List<HomePost> completePosts = new ArrayList<>();
+        for (Post post : posts) {
+            HomePost updatedPost = new HomePost(post);
+            updatedPost.setCommentsCount(getCommentsCount(post));
+            updatedPost.setLikesCount(getLikesCount(post));
+            updatedPost.setIsLikedByUser(isPostLikedByUser(post, viewingUser));
+            completePosts.add(updatedPost);
+        }
+        return completePosts;
+    }
