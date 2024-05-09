@@ -1,0 +1,8 @@
+public boolean isFollowingUser(User user, User follower) {
+        Optional<Following> followOptional = followingRepository.findByUserAndFollower(user, follower);
+        if(followOptional.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
