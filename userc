@@ -1,0 +1,224 @@
+package io.nuggets.chicken_nugget.controllers;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import io.nuggets.chicken_nugget.exceptions.CustomException;
+import io.nuggets.chicken_nugget.services.ImageService;
+import io.nuggets.chicken_nugget.services.UserService;
+import io.nuggets.chicken_nugget.entities.User;
+
+@RestController
+public class userController {
+    
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    ImageService imageService;
+
+    @GetMapping("/updateProfile")
+    public ResponseEntity<?> UpdateProfile(@RequestParam String bio, @RequestParam String fullName,
+            @RequestParam String email, @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            userService.updateBio(user, bio);
+            userService.updateEmail(user, email);
+            userService.updateFullName(user, fullName);
+            Map<String, User> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/updateUserName")
+    public ResponseEntity<?> ChangeUserName(@RequestParam String userName, @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            userService.updateUserName(user, userName);
+            Map<String, User> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/updatePassword")
+    public ResponseEntity<?> ChangePassword(@RequestParam String currPassword, @RequestParam String newPassword,
+            @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            userService.updatePassword(user, currPassword, newPassword);
+            Map<String, User> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getUser")
+    public ResponseEntity<?> GetUser(@RequestParam String userName, @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            User followingUser = userService.getUserByUserName(userName);
+            Boolean isFollowing = userService.isFollowingUser(followingUser, user);
+            long followersCount = userService.getFollowersCount(followingUser);
+            long followingCount = userService.getFollowingCount(followingUser);
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", followingUser);
+            response.put("isFollowing", isFollowing);
+            response.put("followersCount", followersCount);
+            response.put("followingCount", followingCount);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> GetProfile(@RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            long followersCount = userService.getFollowersCount(user);
+            long followingCount = userService.getFollowingCount(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", user);
+            response.put("followersCount", followersCount);
+            response.put("followingCount", followingCount);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/searchUser")
+    public ResponseEntity<?> SearchUser(@RequestParam String authToken, @RequestParam String searchText) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            List<User> users = userService.searchUserByUserName(searchText);
+            Map<String, List<User>> response = new HashMap<>();
+            response.put("users", users);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/followUser")
+    public ResponseEntity<?> FollowUser(@RequestParam String userName, @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            User followingUser = userService.getUserByUserName(userName);
+            userService.followUser(followingUser, user);
+            Map<String, User> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/unFollowUser")
+    public ResponseEntity<?> UnFollowUser(@RequestParam String userName, @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            User followingUser = userService.getUserByUserName(userName);
+            userService.unFollowUser(followingUser, user);
+            Map<String, User> response = new HashMap<>();
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getFollowers")
+    public ResponseEntity<?> getFollowers(@RequestParam String userName, @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            User viewingUser = userService.getUserByUserName(userName);
+            List<User> followers = userService.getFollowers(viewingUser);
+            Map<String, List<User>> response = new HashMap<>();
+            response.put("followers", followers);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getFollowing")
+    public ResponseEntity<?> getFollowing(@RequestParam String userName, @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+            User viewingUser = userService.getUserByUserName(userName);
+            List<User> following = userService.getFollowing(viewingUser);
+            Map<String, List<User>> response = new HashMap<>();
+            response.put("following", following);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/uploadProfilePic")
+    public ResponseEntity<?> UploadProfilePic(@RequestParam("file") MultipartFile file,
+            @RequestParam String authToken) {
+        try {
+            User user = userService.getUserByAuthToken(authToken);
+
+            // Check file type
+            String[] allowedFileTypes = { "image/jpeg", "image/jpg", "image/png" };
+            if (!Arrays.asList(allowedFileTypes).contains(file.getContentType())) {
+                throw new CustomException("File type not supported. Please upload a JPG or JPEG or PNG image.");
+            }
+
+            String downloadUrl = imageService.upload(file);
+
+            userService.updateProfilePic(user, downloadUrl);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("url", downloadUrl);
+            return ResponseEntity.ok(response);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
+    }
+
+}
