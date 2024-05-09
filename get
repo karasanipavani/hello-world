@@ -1,0 +1,13 @@
+public HomePost getPostById(String id, User viewingUser) {
+        Optional<Post> postOptional = this.postRepository.findById(id);
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            HomePost updatedPost = new HomePost(post);
+            updatedPost.setCommentsCount(getCommentsCount(post));
+            updatedPost.setLikesCount(getLikesCount(post));
+            updatedPost.setIsLikedByUser(isPostLikedByUser(post, viewingUser));
+            return updatedPost;
+        } else {
+            throw new CustomException("Invalid postId");
+        }
+    }
