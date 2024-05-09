@@ -1,0 +1,54 @@
+package io.nuggets.chicken_nugget.utils;
+
+import io.nuggets.chicken_nugget.entities.Post;
+import java.util.List;
+
+import io.nuggets.chicken_nugget.entities.Comments;
+
+public class HomePost extends Post {
+    long likesCount;
+    long commentsCount;
+    boolean isLikedByUser;
+    List<Comments> comments;
+
+    public HomePost(Post post) {
+        this.id = post.getId();
+        this.user = post.getUser();
+        this.postText = post.getPostText();
+        this.imageLink = post.getImageLink();
+        this.createdAt = post.getCreatedAt();
+    }
+
+    public long getLikeCount() {
+        return this.likesCount;
+    }
+
+    public long getCommentsCount() {
+        return this.commentsCount;
+    }
+
+    public boolean getIsLikedByUser() {
+        return this.isLikedByUser;
+    }
+
+    public List<Comments> getComments() {
+        return this.comments;
+    }
+
+    public void setLikesCount(long count) {
+        this.likesCount = count;
+    }
+
+    public void setCommentsCount(long count) {
+        this.commentsCount = count;
+    }
+
+    public void setComments(List<Comments> comments) {
+        this.comments = comments;
+    }
+
+    public void setIsLikedByUser(boolean isLikedByUser) {
+        this.isLikedByUser = isLikedByUser;
+    }
+
+}
