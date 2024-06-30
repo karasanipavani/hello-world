@@ -1,0 +1,21 @@
+public Discount GetDiscountByCode(string code)
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            return null;
+        }
+
+        Discount discount = new Discount();
+        char firstChar = char.ToLower(code[0]);
+
+        if (firstChar >= 'a' && firstChar <= 'z')
+        {
+            discount.DiscountPercentage = firstChar - 'a' + 1;
+        }
+        else
+        {
+            discount.DiscountPercentage = 4; // default discount percentage
+        }
+
+        return discount;
+    }
